@@ -43,10 +43,10 @@ def ginput2listOfDict(ginput):
         for j in range (0,2):
             if j == 0:
                 dict_key = "x" + str((i%2)+1)    
-                dict[dict_key] = float(ginput[i][j])
+                dict[dict_key] = int(round(ginput[i][j]))
             if j == 1:
                 dict_key = "y" + str((i%2)+1)
-                dict[dict_key] = float(ginput[i][j])
+                dict[dict_key] = int(round(ginput[i][j]))
                 
         if i%2 == 1:
             mainDict.append(dict)
