@@ -65,11 +65,11 @@ fnvideos = glob.glob(op.join(datapath, "*.AVI"))
 allframes = None
 
 # cislo videa 0-3
-ivideo = 3
+ivideo = 9
 
 # pro krokovani videa
 # videa jsou v 30 fps
-step = 5
+step = 1
 
 fn = fnvideos[ivideo]
 print("video:", fn)
@@ -95,7 +95,8 @@ for num in range(0, frame_number, step):
 #-------------------slovnik pro snimky a jejich bboxy
 frames = {}
 
-for i in range(123,128):
+#620
+for i in range(25,32):
     print ("frame: ", i)
     bboxesForFrame = []
     pseudo_frame_number = i
@@ -116,5 +117,6 @@ data = {
 
 filepath = "test.yaml"
 yaml_dump(filepath, data)
+
 
 

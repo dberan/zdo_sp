@@ -10,24 +10,22 @@ import numpy as np
 import scipy
 import scipy.ndimage
 from skimage import morphology
+import skimage.io
+from skimage.feature import local_binary_pattern
 
 
-
-def lbp(inp):
-    rozmer = inp.shape
-    lbp_im = np.zeros([rozmer[0],rozmer[1]])
+def bboxy(inp):
+    #vstupem je naprahovany boolean obrazek
+    imlabel1 = skimage.measure.label(inp, background=0)
+    pocet_objektu = np.max(imlabel1)
+    bboxy = np.zeros((pocet_objektu,4)) 
     
-    for i in range(1,rozmer[0]-1):
-        for j in range(1,rozmer[1]-1):
-            centrum = inp[i,j]
-            sousedi = [inp[i-1,j-1],inp[i-1,j],inp[i-1,j+1],inp[i,j-1],inp[i,j+1],inp[i+1,j-1],inp[i+1,j],inp[i+1,j+1]]
-            nasobky = [1,2,4,8,16,32,64,128]
-            
-            for k in range(0,8):
-                if(sousedi[k] >= centrum):
-                    lbp_im[i,j] += nasobky[k]
-
-    return lbp_im
+    for i in range(1,pocet_objektu+1):
+        objekt = (imlabel1==i).astype(int)
+        dat = skimage.measure.regionprops(objekt)
+        bboxy[i-1,:] = dat[0].bbox
+    
+    return bboxy
 
 
 
@@ -56,9 +54,14 @@ def detektor(vstup1,vstup2,px_vel):
         for j in range(0,rozl[1]):
             seg1 = vstup1[i*px_vel:(i+1)*px_vel,j*px_vel:(j+1)*px_vel]
             seg2 = vstup2[i*px_vel:(i+1)*px_vel,j*px_vel:(j+1)*px_vel]
+            #h1 = np.histogram(seg1, bins = range(256))
+            #h2 = np.histogram(seg2, bins = range(256))
+            #vystup[i,j] = sum(abs(h1[0]-h2[0]))
+            
             h1 = hist(seg1)
             h2 = hist(seg2)
             vystup[i,j] = sum(abs(h1-h2))
+            
     return vystup
     
 
@@ -75,7 +78,7 @@ fnvideos = glob.glob(op.join(datapath, "*.AVI"))
 
 allframes = None
 
-ivideo = 0
+ivideo = 9
 step = 1
 
 fn = fnvideos[ivideo]
@@ -92,19 +95,25 @@ frame_number = vid.get_length()
 
 
 
-poz = skimage.color.rgb2gray(vid.get_data(500))
-akt = skimage.color.rgb2gray(vid.get_data(650))
+#poz = skimage.color.rgb2gray(vid.get_data(500))
+poz = skimage.io.imread('..\pozadi\V__00014_xvid_poz.jpg')
+akt = skimage.color.rgb2gray(vid.get_data(30))
 
 
 
 
-poz_lbp = lbp(poz)
+
+m = 'default'
+#poz_lbp = lbp(poz)
+poz_lbp = local_binary_pattern(poz,8,2,method=m)
 print("---")
-akt_lbp = lbp(akt)
+#akt_lbp = lbp(akt)
+akt_lbp = local_binary_pattern(akt,8,2,method=m)
 print("---")
 
-
-
-test = detektor(poz_lbp,akt_lbp,10)
-plt.imshow(test)
+test_puv = detektor(poz_lbp,akt_lbp,10)>130
+test = skimage.morphology.opening(test_puv)
+test = skimage.morphology.closing(test)
+plt.imshow(test_puv)
 plt.show()
+print(bboxy(test_puv))
