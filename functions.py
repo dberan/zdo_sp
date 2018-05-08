@@ -1,6 +1,7 @@
 import numpy as np
 import skimage
 import cv2 as cv
+from skimage.morphology import dilation, erosion, square
 
 def testFunc(string):
     print(string)
@@ -34,10 +35,13 @@ def detektor_zmen_ve_snimku(vstup1,vstup2,px_vel):
             
     return zmenovy_rastr
 
-def filtrace(snimek_zmen, prahova_hodnota):
+def filtrace(snimek_zmen, prahova_hodnota, maska):
     
     ret,th = cv.threshold(snimek_zmen,prahova_hodnota,255,cv.THRESH_BINARY)
-    return th
+    ero = erosion(th, square(maska))
+    dil = dilation(ero, square(maska))
+    dil2 = dilation(dil, square(maska))
+    return dil2
 
 def bboxy(inp):
     
