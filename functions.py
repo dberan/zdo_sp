@@ -1,9 +1,9 @@
 import numpy as np
 import skimage
+import cv2 as cv
 
 def testFunc(string):
     print(string)
-    
     
     
 def hist(vstup):
@@ -15,7 +15,6 @@ def hist(vstup):
         for j in range(0,r[1]):
             h[int(vstup[i,j])] += 1
     return h
-
 
 
 def detektor_zmen_ve_snimku(vstup1,vstup2,px_vel):
@@ -35,8 +34,10 @@ def detektor_zmen_ve_snimku(vstup1,vstup2,px_vel):
             
     return zmenovy_rastr
 
-
-
+def filtrace(snimek_zmen, prahova_hodnota):
+    
+    ret,th = cv.threshold(snimek_zmen,prahova_hodnota,255,cv.THRESH_BINARY)
+    return th
 
 def bboxy(inp):
     
