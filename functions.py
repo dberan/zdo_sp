@@ -1,7 +1,8 @@
 import numpy as np
 import skimage
-import cv2 as cv
+#import cv2 as cv
 from skimage.morphology import dilation, erosion, square
+import scipy
 
 def testFunc(string):
     print(string)
@@ -37,11 +38,21 @@ def detektor_zmen_ve_snimku(vstup1,vstup2,px_vel):
 
 def filtrace(snimek_zmen, prahova_hodnota, maska):
     
-    ret,th = cv.threshold(snimek_zmen,prahova_hodnota,255,cv.THRESH_BINARY)
-    ero = erosion(th, square(maska))
-    dil = dilation(ero, square(maska))
-    dil2 = dilation(dil, square(maska))
-    return dil2
+    #ret,th = cv.threshold(snimek_zmen,prahova_hodnota,255,cv.THRESH_BINARY)
+    th = snimek_zmen>prahova_hodnota
+#    ero = erosion(th, square(maska))
+#    dil = dilation(ero, square(maska))
+#    dil2 = dilation(dil, square(maska))
+    
+   
+    
+    fill = scipy.ndimage.morphology.binary_fill_holes(th)
+    s = skimage.morphology.remove_small_objects(fill,20)
+    poloprah = s*snimek_zmen
+    med = skimage.filters.median(s, square(4))
+    dil = dilation(s, square(maska))
+    er = erosion(dil, square(maska))
+    return s
 
 def bboxy(inp):
     
