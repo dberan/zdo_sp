@@ -3,6 +3,7 @@ import skimage
 #import cv2 as cv
 from skimage.morphology import dilation, erosion, square
 import scipy
+import yaml
 
 def testFunc(string):
     print(string)
@@ -54,7 +55,7 @@ def filtrace(snimek_zmen, prahova_hodnota, maska):
     er = erosion(dil, square(maska))
     return s
 
-def bboxy(inp):
+def bboxy(inp,px):
     
     imlabel1 = skimage.measure.label(inp, background=0)
     pocet_objektu = np.max(imlabel1)
@@ -65,4 +66,37 @@ def bboxy(inp):
         dat = skimage.measure.regionprops(objekt)
         bboxy[i-1,:] = dat[0].bbox
     
-    return bboxy
+    return bboxy*px
+
+
+def ginput2listOfDict(ginput):
+    mainDict = []
+    numOfPoints = ginput.__len__()
+    #print (numOfPoints)
+    
+    dict = {}
+    for i in range (0,numOfPoints):  
+        dict = {}
+        for j in range (0,4):
+            if j == 0:
+                dict_key = "y1"   
+            if j == 1:
+                dict_key = "x1"
+            if j == 2:
+                dict_key = "y2"  
+            if j == 3:
+                dict_key = "x2"
+            
+            dict[dict_key] = int(round(ginput[i][j]))
+                
+        mainDict.append(dict)
+    
+    #print (mainDict)
+    return mainDict
+
+
+def yaml_dump (filepath, data):
+    #dumps data in a file
+    with open(filepath, "w") as file_descriptor:
+        yaml.dump(data, file_descriptor)
+    print("Data dumped in", filepath )
